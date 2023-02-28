@@ -1,0 +1,63 @@
+# PREREQUISITES:
+#
+# 1)   You must use moltemplate.sh to create 3 files:
+#        system.data  system.in.init  system.in.settings
+# 2)   You must minimize the coordinates using by running lammps witn
+#      run.in.min
+#      
+
+# ------------------------------- Initialization Section --------------------
+
+include         "system.in.init"
+
+# ------------------------------- Atom Definition Section -------------------
+
+read_data       "system_after_min.data"
+
+# ------------------------------- Settings Section --------------------------
+
+include         "system.in.settings"
+
+# ------------------------------- Run Section -------------------------------
+
+# -- simulation protocol --
+
+
+#Equilibrio
+
+# temperature: 300 K
+fix efxnvt all nvt temp 300.0 300.0 $(100.0*dt)
+thermo_style custom step time temp press vol pe ke etotal evdwl ecoul epair emol elong 
+thermo 10000
+dump efxnvt all custom 10000 traj_equib_nvt.lammpstrj id mol type x y z fx fy fz
+timestep 1.0
+run             1000000
+unfix    efxnvt
+write_data      system_after_efxnvt.data
+
+undump efxnvt
+
+# temperature: 300 K, pressure: 1 bar
+fix  efxnpt all npt temp 300.0 300.0 $(100.0*dt) iso 1.0 1.0 $(1000.0*dt) drag 1.0
+thermo_style custom step time temp press vol pe ke etotal evdwl ecoul epair emol elong
+thermo 100000
+dump efxnpt all custom 10000 traj_equib_npte.lammpstrj id mol type x y z fx fy fz
+timestep 1.0
+run             10000000
+unfix    efxnpt
+write_data      system_after_efxnpt.data
+
+undump efxnpt
+#Produccion
+# temperature: 300 K, pressure: 1 bar
+fix  pfxnpt all npt temp 300.0 300.0 $(100.0*dt) iso 1.0 1.0 $(1000.0*dt) drag 1.0
+thermo_style custom step time temp press vol pe ke etotal evdwl ecoul epair emol elong
+thermo 100000
+dump efxnpt all custom 10000 traj_equib_nptp.lammpstrj id mol type x y z fx fy fz
+timestep 1.0
+run             10000000
+unfix    pfxnpt
+write_data      system_after_pfxnpt.data
+
+restart 1000 mip.restart
+

@@ -1,0 +1,6 @@
+#Archivo de entrada para la construccion de la configuracion inicial para lammps via moltemplate y packmol.
+bicapa          ##01 Tipo de sistema.
+2               ##02 Numero de componentes
+60,30           ##03 Descripcion de dimensiones (separadas por coma)
+100,decanoico,11,12
+1500,water
